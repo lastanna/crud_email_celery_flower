@@ -1,12 +1,12 @@
 # Python
-__pycache__ /
+__pycache__/
 *.py [cod]
 *.so
 env/
 venv/
 build/
 dist/
-
+tmp/
 # Django
 *.log
 *.sqlite3

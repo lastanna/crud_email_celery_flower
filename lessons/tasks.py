@@ -27,7 +27,8 @@ def send_lesson_email_task(self, lesson_id):
         subject = f"Опубликован новый урок: {lesson.title}"
         message = f"Здравствуйте!\n\nУрок '{lesson.title}' уже доступен на платформе."
 
-        # 3. Отправка через Django SMTP
+        # 3. Отправка через Django SMTP (в настройках в целях тестирования указан файловый бэкенд
+        # сообщения сохраняются в корне проекта в папку tmp
         send_mail(
             subject=subject,
             message=message,

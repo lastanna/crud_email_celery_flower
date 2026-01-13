@@ -1,5 +1,4 @@
 from django.db import transaction
-from lessons.models import Lesson
 from lessons.tasks import send_lesson_email_task
 
 def create_lesson_with_notification(form):
