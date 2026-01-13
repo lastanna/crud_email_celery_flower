@@ -1,0 +1,28 @@
+# Python
+__pycache__ /
+*.py [cod]
+*.so
+env/
+venv/
+build/
+dist/
+
+# Django
+*.log
+*.sqlite3
+local_settings.py  # Or any file containing local secrets/configurations
+media/  # User-uploaded files, usually stored in a persistent volume in production
+static/  # Collected static files, often generated on deployment
+
+# IDE-specific files (e.g., VS Code, PyCharm)
+.vscode/
+.idea/
+
+# OS-specific files
+.DS_Store
+.Spotlight-V100
+.Trashes
+
+# Environment variables
+.env
+

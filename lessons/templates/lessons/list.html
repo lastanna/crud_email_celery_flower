@@ -1,0 +1,15 @@
+<h1>Уроки</h1>
+<!-- Кнопка добавить урок-->
+<a href="{% url 'lessons:create' %}">Добавить новый урок</a>
+<ul>
+    <!-- Iterate over object_list -->
+    {% for object in object_list %}
+    <!-- Display Objects -->
+    <a href="{% url 'lessons:update' object.id %}">
+        <li>{{ object.title }}</li></a><input type="checkbox" {% if object.completed_at != None %}checked{% endif %} onclick="return false;">
+
+    <!-- If objet_list is empty  -->
+    {% empty %}
+    <li>Ни один урок еще не создан</li>
+    {% endfor %}
+</ul>

@@ -1,0 +1,46 @@
+services:
+  # The main application service (e.g., a Django or Flask app)
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+    # Environment variable to configure Celery broker URL
+    environment: &celery_env
+      CELERY_BROKER_URL: "redis://redis:6379/0"
+      CELERY_RESULT_BACKEND: "redis://redis:6379/0"
+
+
+  # The Celery worker service
+  celery_worker:
+    build: .
+    command: celery -A testtaskproject worker --loglevel=info #
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+      - app
+    environment: *celery_env
+
+  # Мониторинг Flower
+  flower:
+    build: .
+    command: celery -A testtaskproject flower --port=5555
+    ports:
+      - "5555:5555"
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+      - celery_worker
+    environment: *celery_env
+
+  # The Redis message broker and result backend service
+  redis:
+    image: "redis:6.2-alpine" # Use an official Redis image
+    container_name: redis
+    ports:
+      - "6379:6379"

@@ -1,0 +1,12 @@
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Сохранить</button>
+    <!-- Если у урока стоит дата завершения, то кнопка не активна.-->
+    <button type="submit" name="complete_lesson" {% if form.instance.completed_at %}disabled{% endif %}>
+        {% if form.instance.completed_at %}
+             Урок был завершен: {{ form.instance.completed_at }}
+        {% else %}
+            Сохранить и завершить урок
+        {% endif %}</button>
+</form>

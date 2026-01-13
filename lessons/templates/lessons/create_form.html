@@ -1,0 +1,7 @@
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Сохранить</button>
+    <button type="submit" name="complete_lesson">Сохранить и завершить урок</button>
+
+</form>
