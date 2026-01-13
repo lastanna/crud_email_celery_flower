@@ -19,7 +19,7 @@ COPY . .
 RUN adduser --disabled-password --no-create-home appuser
 USER appuser
 RUN cd /app
-# порт для Daphne
+# порт для Daphne еще не реализовано
 EXPOSE 8000
 
 # Команда для запуска django development server
