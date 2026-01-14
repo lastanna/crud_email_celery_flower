@@ -3,7 +3,7 @@ __pycache__/
 *.py [cod]
 *.so
 env/
-venv/
+.venv/
 build/
 dist/
 tmp/
@@ -26,3 +26,5 @@ static/  # Collected static files, often generated on deployment
 # Environment variables
 .env
 
+/.venv/
+/.venv/
