@@ -2,9 +2,9 @@ from django.utils import timezone
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView, UpdateView
 from django.urls import reverse_lazy
-from django.http import HttpResponseRedirect
 from lessons.models import Lesson
 from lessons.services import create_lesson_with_notification
+from lessons.tasks import send_updated_email
 
 class LessonList(ListView):
     model = Lesson
@@ -23,14 +23,15 @@ class LessonCreateView(CreateView):
         Этот метод вызывается, когда форма успешно прошла валидацию.
         """
         # Проверяем кликнута ли кнопочка "Завершить урок"
-        if 'complete_lesson' in self.request.POST:
+        if is_completed:='complete_lesson' in self.request.POST:
             # Инициализируем поле формы текущим временем
             form.instance.completed_at = timezone.now().date()
         form.instance.author = self.request.user
         # Вместо стандартного form.save() вызываем наш сервис
-        self.object = create_lesson_with_notification(form)
+        self.object = create_lesson_with_notification(form, is_completed)
         # Сохраняем форму, работает для обеих кнопочек и для "Сохранить" и для "Завершить урок"
         return super().form_valid(form)
+        # return HttpResponseRedirect(self.get_success_url())
 
 class LessonUpdateView(UpdateView):
     model = Lesson
@@ -45,5 +46,6 @@ class LessonUpdateView(UpdateView):
             # Инициализируем поле формы текущим временем
             form.instance.completed_at = timezone.now().date()
             form.instance.author = self.request.user
+        send_updated_email(form.instance.pk)
         # Сохраняем форму, работает для обеих кнопочек и для "Сохранить" и для "Завершить урок"
         return super().form_valid(form)
