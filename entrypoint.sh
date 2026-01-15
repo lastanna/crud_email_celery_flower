@@ -1,33 +1,35 @@
 #!/bin/sh
-
-# Остановить выполнение при любой ошибке
 set -e
 
-echo "Ожидание запуска базы данных..."
-# Ждем, пока БД станет доступна (замените db на имя вашего сервиса БД в compose)
-# Это предотвращает ошибку "Connection refused"
-until python manage.py shell -c "import django; django.db.connection.ensure_connection()" 2>/dev/null; do
-  sleep 1
-done
+if [ "$RUN_SETUP" = "true" ]; then
+    echo "--- MAIN CONTAINER: Running migrations ---"
+    python manage.py migrate --noinput
 
-echo "База данных готова. Запуск миграций..."
-python manage.py makemigrations
-python manage.py migrate
-echo "Создание суперпользователя..."
-python manage.py shell <<EOF
-from django.contrib.auth import get_user_model
+    # Включаем режим WAL для SQLite (улучшает работу с Celery)
+    python manage.py shell -c "import sqlite3; conn = sqlite3.connect('db_storage/db.sqlite3'); conn.execute('PRAGMA journal_mode=WAL;')"
+
+    echo "--- MAIN CONTAINER: Checking Superuser ---"
+    python manage.py shell <<EOF
 import os
-
+from django.contrib.auth import get_user_model
 User = get_user_model()
-username = os.environ.get('DJANGO_SUPERUSER_USERNAME', 'admin')
-email = os.environ.get('DJANGO_SUPERUSER_EMAIL', 'admin@example.com')
-password = os.environ.get('DJANGO_SUPERUSER_PASSWORD', 'adminpass')
-
+username = os.getenv('DJANGO_SUPERUSER_USERNAME', 'admin')
 if not User.objects.filter(username=username).exists():
-    User.objects.create_superuser(username, email, password)
-    print(f'Суперпользователь "{username}" создан.')
-else:
-    print(f'Суперпользователь "{username}" уже существует.')
+    User.objects.create_superuser(
+        username,
+        os.getenv('DJANGO_SUPERUSER_EMAIL'),
+        os.getenv('DJANGO_SUPERUSER_PASSWORD')
+    )
+    print(f'Superuser {username} created.')
 EOF
+else
+    echo "--- WORKER/FLOWER: Waiting for database file ---"
+    # Ждем, пока основной контейнер создаст файл базы
+    until [ -f "/app/db_storage/db.sqlite3" ]; do
+      sleep 2
+    done
 
+fi
+
+echo "--- Starting command: $@ ---"
 exec "$@"
