@@ -14,7 +14,6 @@ class LessonList(ListView):
 class LessonCreateView(CreateView):
     model = Lesson
     fields = ['title', 'content', 'task']
-    # Перенаправляет после успешного создания/редактирования
     success_url = reverse_lazy('lessons:list')
     template_name = 'lessons/create_form.html'
 
@@ -27,16 +26,18 @@ class LessonCreateView(CreateView):
             # Инициализируем поле формы текущим временем
             form.instance.completed_at = timezone.now().date()
         form.instance.author = self.request.user
-        # Вместо стандартного form.save() вызываем наш сервис
-        self.object = create_lesson_with_notification(form, is_completed)
-        # Сохраняем форму, работает для обеих кнопочек и для "Сохранить" и для "Завершить урок"
+        # Вместо стандартного form.save() вызываем наш сервис: сохраняем форму и отправляем email
+        # работает для обеих кнопочек и для "Сохранить" и для "Завершить урок"
+        create_lesson_with_notification(form, is_completed)
+        # После сохранения у урока появился pk, если урок завершен, отправляем email
+        if is_completed:
+            send_updated_email(form.instance.pk)
         return super().form_valid(form)
         # return HttpResponseRedirect(self.get_success_url())
 
 class LessonUpdateView(UpdateView):
     model = Lesson
     fields = ['title', 'content', 'task']
-    # Перенаправляет после успешного создания/редактирования
     success_url = reverse_lazy('lessons:list')
     template_name = 'lessons/edit_form.html'
 
@@ -45,7 +46,5 @@ class LessonUpdateView(UpdateView):
         if 'complete_lesson' in self.request.POST:
             # Инициализируем поле формы текущим временем
             form.instance.completed_at = timezone.now().date()
-            form.instance.author = self.request.user
-        send_updated_email(form.instance.pk)
-        # Сохраняем форму, работает для обеих кнопочек и для "Сохранить" и для "Завершить урок"
+            send_updated_email(form.instance.pk)
         return super().form_valid(form)
