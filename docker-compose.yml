@@ -17,7 +17,7 @@ services:
       CELERY_RESULT_BACKEND: "redis://redis:6379/0"
       DJANGO_SUPERUSER_USERNAME: "admin"
       DJANGO_SUPERUSER_EMAIL: "admin@example.com"
-      DJANGO_SUPERUSER_PASSWORD: "your_secure_password_2026"
+      DJANGO_SUPERUSER_PASSWORD: "adminpass"
 
   # The Celery worker service
   celery_worker:
