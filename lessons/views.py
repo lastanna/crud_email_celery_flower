@@ -28,12 +28,11 @@ class LessonCreateView(CreateView):
         form.instance.author = self.request.user
         # Вместо стандартного form.save() вызываем наш сервис: сохраняем форму и отправляем email
         # работает для обеих кнопочек и для "Сохранить" и для "Завершить урок"
-        create_lesson_with_notification(form, is_completed)
+        create_lesson_with_notification(form)
         # После сохранения у урока появился pk, если урок завершен, отправляем email
         if is_completed:
             send_updated_email(form.instance.pk)
         return super().form_valid(form)
-        # return HttpResponseRedirect(self.get_success_url())
 
 class LessonUpdateView(UpdateView):
     model = Lesson
