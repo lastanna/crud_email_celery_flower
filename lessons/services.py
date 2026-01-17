@@ -1,7 +1,7 @@
 from django.db import transaction
 from lessons.tasks import send_created_email
 
-def create_lesson_with_notification(form, is_completed):
+def create_lesson_with_notification(form):
     # Атомарная операция: создает урок и ставит задачу на отправку email
     with transaction.atomic():
         # 1. Создаем запись в базе, сохраняем данные из формы в модель
